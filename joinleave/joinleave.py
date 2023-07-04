@@ -29,9 +29,10 @@ class JoinLeave(commands.Cog):
             return
         timestamp = datetime.now(timezone.utc)
         created_at = member.created_at.astimezone(timezone.utc)
-        created_on = f"{user_created} (acum {since_created} zile)"
-        user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
         days_since_creation = (timestamp - created_at).days
+        user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
+        since_created = days_since_creation
+        created_on = f"{user_created} (acum {since_created} zile)"
         embed = discord.Embed(
             description=f"{member.mention} ({member.name}#{member.discriminator})",
             timestamp=member.joined_at,
@@ -53,12 +54,13 @@ class JoinLeave(commands.Cog):
             return
         timestamp = datetime.now(timezone.utc)
         created_at = member.created_at.astimezone(timezone.utc)
-        created_on = f"{user_created} (acum {since_created} zile)"
         days_since_creation = (timestamp - created_at).days
-        time = datetime.datetime.utcnow()
+        user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
+        since_created = days_since_creation
+        created_on = f"{user_created} (acum {since_created} zile)"
         embed = discord.Embed(
             description=f"{member.mention} ({member.name}#{member.discriminator})",
-            timestamp=time,
+            timestamp=datetime.utcnow(),
             color=discord.Color.red())
         embed.set_thumbnail(url=member.avatar.url)
         embed.set_author(name=f"{member.name} a părăsit serverul de Discord", icon_url=member.avatar.url)
