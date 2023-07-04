@@ -1,5 +1,4 @@
 import discord
-import datetime
 from redbot.core import commands, Config
 
 class JoinLeave(commands.Cog):
@@ -18,7 +17,7 @@ class JoinLeave(commands.Cog):
         guild = member.guild
         channel_id = await self.config.guild(guild).channel_bun_venit()
         if channel_id:
-            channel = self.bot.get_channel(channel_id)
+            channel = guild.get_channel(channel_id)
             if channel:
                 embed = discord.Embed(
                     title="Bun venit pe server!",
@@ -28,7 +27,6 @@ class JoinLeave(commands.Cog):
                 embed.set_thumbnail(url=member.avatar_url)
                 embed.add_field(name="Legiunea EU", value=f"{member.name}#{member.discriminator}")
                 embed.set_footer(text=f"Număr total de membri: {guild.member_count} | Legiunea Guild - Since Jul 2023")
-                embed.timestamp = datetime.datetime.utcnow()
                 await channel.send(embed=embed)
 
     @commands.Cog.listener()
@@ -36,7 +34,7 @@ class JoinLeave(commands.Cog):
         guild = member.guild
         channel_id = await self.config.guild(guild).channel_ramas_bun()
         if channel_id:
-            channel = self.bot.get_channel(channel_id)
+            channel = guild.get_channel(channel_id)
             if channel:
                 embed = discord.Embed(
                     title="La revedere!",
@@ -46,7 +44,6 @@ class JoinLeave(commands.Cog):
                 embed.set_thumbnail(url=member.avatar_url)
                 embed.add_field(name="Legiunea EU plecată", value=f"{member.name}#{member.discriminator}")
                 embed.set_footer(text=f"Număr total de membri: {guild.member_count} | Legiunea Guild - Since Jul 2023")
-                embed.timestamp = datetime.datetime.utcnow()
                 await channel.send(embed=embed)
 
     @commands.command()
@@ -56,10 +53,10 @@ class JoinLeave(commands.Cog):
         event_type = event_type.lower()
         if event_type == "bun_venit":
             await self.config.guild(guild).channel_bun_venit.set(channel.id)
-            await ctx.send(f"Canalul pentru mesajul de welcome a fost setat la {channel.mention}.")
+            await ctx.send(f"Canalul pentru mesajul de bun venit a fost setat la {channel.mention}.")
         elif event_type == "ramas_bun":
             await self.config.guild(guild).channel_ramas_bun.set(channel.id)
-            await ctx.send(f"Canalul pentru mesajul de leave a fost setat la {channel.mention}.")
+            await ctx.send(f"Canalul pentru mesajul de rămas bun a fost setat la {channel.mention}.")
         else:
             await ctx.send("Te rog specifică un tip valid: `bun_venit` sau `ramas_bun`.")
 
