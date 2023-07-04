@@ -40,11 +40,11 @@ class JoinLeave(commands.Cog):
             colour=discord.Colour.green(),
             timestamp=member.joined_at,
         )
-        embed.add_field(name="Total Membrii:", value=str(users))
-        embed.add_field(name="Cont creeat la:", value=created_on)
+        embed.add_field(name="Total Users:", value=str(users))
+        embed.add_field(name="Account created on:", value=created_on)
         embed.set_footer(text=f"User ID: {member.id}")
         embed.set_author(
-            name=f"{member.name} a intrat pe serverul de discord",
+            name=f"{member.name} has joined the guild",
             url=member.avatar_url,
             icon_url=member.avatar_url,
         )
@@ -69,15 +69,16 @@ class JoinLeave(commands.Cog):
             colour=discord.Colour.red(),
             timestamp=time,
         )
-        embed.add_field(name="Total Membrii:", value=str(users))
+        embed.add_field(name="Total Users:", value=str(users))
         embed.set_footer(text=f"User ID: {member.id}")
         embed.set_author(
-            name=f"{member.name} a iesit de pe serverul de discord",
+            name=f"{member.name} has left the guild",
             url=member.avatar_url,
             icon_url=member.avatar_url,
         )
         embed.set_thumbnail(url=member.avatar_url)
         await channel.send(embed=embed)
+
     @commands.group()
     async def joinleave(self, ctx):
         """Comenzi pentru evenimentele de intrare/ieșire"""
