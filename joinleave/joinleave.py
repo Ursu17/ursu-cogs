@@ -41,6 +41,7 @@ class JoinLeave(commands.Cog):
         embed.set_author(name=f"{member.name} a intrat pe serverul de Discord", icon_url=member.avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
         embed.add_field(name="Cont creeat la:", value=created_on)
+        embed.set_footer(text=f"User ID: {member.id}")
         await channel.send(embed=embed)
 
     @commands.Cog.listener()
@@ -66,6 +67,7 @@ class JoinLeave(commands.Cog):
         embed.set_author(name=f"{member.name} a părăsit serverul de Discord", icon_url=member.avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
         embed.add_field(name="Cont creeat la:", value=created_on)
+        embed.set_footer(text=f"User ID: {member.id}")
         await channel.send(embed=embed)
 
     @commands.group()
