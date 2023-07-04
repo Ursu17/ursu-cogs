@@ -1,17 +1,17 @@
-import discord
-from datetime import datetime
 from redbot.core import commands, Config
-from redbot.core.i18n import Translator
+from redbot.core.i18n import Translator, cog_i18n
+import discord
+import datetime
 
 _ = Translator("JoinLeave", __file__)
 
-
+@cog_i18n(_)
 class JoinLeave(commands.Cog):
-    """Cog pentru gestionarea evenimentelor de intrare și ieșire."""
+    """Join/Leave events"""
 
     def __init__(self, bot):
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=1234567890)  # Schimbă identifier-ul cu unul unic
+        self.config = Config.get_conf(self, identifier=1234567890)
         default_guild = {
             "welcome_channel": None,
             "farewell_channel": None,
@@ -20,50 +20,77 @@ class JoinLeave(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        welcome_channel_id = await self.config.guild(member.guild).welcome_channel()
-        if welcome_channel_id:
-            welcome_channel = member.guild.get_channel(welcome_channel_id)
-            if welcome_channel:
-                embed = discord.Embed(
-                    title=_("Bun venit!"),
-                    description=f"{member.mention} a intrat pe serverul nostru!",
-                    color=discord.Color.green(),
-                    timestamp=datetime.utcnow(),
-                )
-                embed.set_author(name=member.name, icon_url=member.avatar_url)
-                await welcome_channel.send(embed=embed)
+        data = await self.config.guild(member.guild).all()
+        channel_id = data["welcome_channel"]
+        if channel_id is None:
+            return
+        channel = member.guild.get_channel(channel_id)
+        if not channel:
+            return
+        timestamp = datetime.datetime.utcnow()
+        embed = discord.Embed(color=discord.Color.green())
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_author(name=f"{member.name} a intrat pe serverul de Discord", icon_url=member.avatar_url)
+        embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
+        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+        await channel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        farewell_channel_id = await self.config.guild(member.guild).farewell_channel()
-        if farewell_channel_id:
-            farewell_channel = member.guild.get_channel(farewell_channel_id)
-            if farewell_channel:
-                embed = discord.Embed(
-                    title=_("Rămas bun!"),
-                    description=f"{member.name} a părăsit serverul nostru!",
-                    color=discord.Color.red(),
-                    timestamp=datetime.utcnow(),
-                )
-                embed.set_author(name=member.name, icon_url=member.avatar_url)
-                await farewell_channel.send(embed=embed)
+        data = await self.config.guild(member.guild).all()
+        channel_id = data["farewell_channel"]
+        if channel_id is None:
+            return
+        channel = member.guild.get_channel(channel_id)
+        if not channel:
+            return
+        timestamp = datetime.datetime.utcnow()
+        embed = discord.Embed(color=discord.Color.red())
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_author(name=f"{member.name} a părăsit serverul de Discord", icon_url=member.avatar_url)
+        embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
+        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+        await channel.send(embed=embed)
 
-    @commands.command()
-    @commands.guild_only()
-    @commands.admin_or_permissions(manage_guild=True)
-    async def setchannel(self, ctx, action: str, channel: discord.TextChannel):
-        """Setează canalul pentru evenimentele de intrare și ieșire."""
-        if action.lower() not in ["in", "out"]:
-            await ctx.send(_("Tipul canalului este invalid. Folosește 'in' sau 'out'."))
+    @commands.group()
+    async def joinleave(self, ctx):
+        """Comenzi pentru evenimentele de intrare/ieșire"""
+        pass
+
+    @joinleave.command(name="setchannel")
+    async def set_channel(self, ctx, event: str, channel: discord.TextChannel):
+        """Configurează canalul pentru evenimentul specificat (intrare/ieșire)"""
+        if event.lower() not in ["intrare", "ieșire"]:
+            await ctx.send(_("Tipul canalului este invalid. Folosește \"intrare\" sau \"ieșire\"."))
             return
 
-        if action.lower() == "in":
-            await self.config.guild(ctx.guild).welcome_channel.set(channel.id)
-            await ctx.send(_("Canalul de bun venit a fost setat la {channel}").format(channel=channel.mention))
-        elif action.lower() == "out":
-            await self.config.guild(ctx.guild).farewell_channel.set(channel.id)
-            await ctx.send(_("Canalul de rămas bun a fost setat la {channel}").format(channel=channel.mention))
+        event = event.lower()
+        data = await self.config.guild(ctx.guild).all()
 
-    async def red_delete_data_for_user(self, **kwargs):
-        """Nu stochează date despre utilizatori."""
-        return
+        if event == "intrare":
+            data["welcome_channel"] = channel.id
+            await ctx.send(_("Canalul pentru evenimentul de intrare a fost configurat."))
+        elif event == "ieșire":
+            data["farewell_channel"] = channel.id
+            await ctx.send(_("Canalul pentru evenimentul de ieșire a fost configurat."))
+
+        await self.config.guild(ctx.guild).set(data)
+
+    @joinleave.command(name="resetchannel")
+    async def reset_channel(self, ctx, event: str):
+        """Resetează canalul pentru evenimentul specificat (intrare/ieșire)"""
+        if event.lower() not in ["intrare", "ieșire"]:
+            await ctx.send(_("Tipul canalului este invalid. Folosește \"intrare\" sau \"ieșire\"."))
+            return
+
+        event = event.lower()
+        data = await self.config.guild(ctx.guild).all()
+
+        if event == "intrare":
+            data["welcome_channel"] = None
+            await ctx.send(_("Canalul pentru evenimentul de intrare a fost resetat."))
+        elif event == "ieșire":
+            data["farewell_channel"] = None
+            await ctx.send(_("Canalul pentru evenimentul de ieșire a fost resetat."))
+
+        await self.config.guild(ctx.guild).set(data)
