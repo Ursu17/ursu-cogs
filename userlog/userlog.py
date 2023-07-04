@@ -12,7 +12,7 @@ class UserLog(commands.Cog):
     Log when users join/leave into a specified channel.
     """
 
-    __version__ = "1.1.0"
+    __version__ = "1.2.0"
 
     def __init__(self, bot: Red):
         self.bot = bot
