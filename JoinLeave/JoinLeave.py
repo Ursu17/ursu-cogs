@@ -60,13 +60,12 @@ class JoinLeave(commands.Cog):
                 embed.set_footer(text=_("Număr total de membri: {count} | Legiunea Guild - Since Jul 2023").format(count=guild.member_count))
                 await channel.send(embed=embed)
 
-    @commands.group(name="joinleave")
+    @commands.group()
     async def joinleave(self, ctx):
-        """Comenzi pentru setarea canalului de Join și Leave"""
+        """Comenzi pentru mesajele de Join și Leave"""
         pass
 
     @joinleave.command(name="setchannel")
-    @commands.has_permissions(manage_guild=True)
     async def set_channel(self, ctx, event_type: str, channel: discord.TextChannel):
         """Setează canalul pentru mesajul de Join sau Leave"""
         guild = ctx.guild
