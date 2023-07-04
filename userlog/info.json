@@ -1,9 +1,0 @@
-{
-    "author" : ["Ursu17"],
-    "install_msg" : "Bravo ma!",
-    "name" : "UserLog",
-    "short" : "Trimite mesaj cand cineva intra/iese.",
-    "description" : "Trimite mesaj cand cineva intra sau iese de pe serverul de discord.",
-    "tags" : ["userlog", "log", "memberlog"],
-    "end_user_data_statement": "This cog does not store any user data."
-}
