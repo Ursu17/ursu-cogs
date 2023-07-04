@@ -1,7 +1,7 @@
+import discord
+from datetime import datetime, timedelta
 from redbot.core import commands, Config
 from redbot.core.i18n import Translator, cog_i18n
-import discord
-import datetime
 
 _ = Translator("JoinLeave", __file__)
 
@@ -27,12 +27,16 @@ class JoinLeave(commands.Cog):
         channel = member.guild.get_channel(channel_id)
         if not channel:
             return
-        timestamp = datetime.datetime.utcnow()
+        timestamp = datetime.utcnow()
+        created_at = member.created_at
+        days_since_creation = (timestamp - created_at).days
         embed = discord.Embed(color=discord.Color.green())
-        embed.set_thumbnail(url=member.avatar.url)
-        embed.set_author(name=f"{member.name} a intrat pe serverul de Discord", icon_url=member.avatar.url)
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_author(name=f"{member.name} a intrat pe serverul de Discord", icon_url=member.avatar_url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
-        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+        embed.add_field(name="Creat la:", value=f"{created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC", inline=True)
+        embed.add_field(name="Zile de la creare:", value=str(days_since_creation), inline=True)
+        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')} UTC")
         await channel.send(embed=embed)
 
     @commands.Cog.listener()
@@ -44,12 +48,16 @@ class JoinLeave(commands.Cog):
         channel = member.guild.get_channel(channel_id)
         if not channel:
             return
-        timestamp = datetime.datetime.utcnow()
+        timestamp = datetime.utcnow()
+        created_at = member.created_at
+        days_since_creation = (timestamp - created_at).days
         embed = discord.Embed(color=discord.Color.red())
-        embed.set_thumbnail(url=member.avatar.url)
-        embed.set_author(name=f"{member.name} a parasit serverul de Discord", icon_url=member.avatar.url)
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_author(name=f"{member.name} a părăsit serverul de Discord", icon_url=member.avatar_url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
-        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+        embed.add_field(name="Creat la:", value=f"{created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC", inline=True)
+        embed.add_field(name="Zile de la creare:", value=str(days_since_creation), inline=True)
+        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')} UTC")
         await channel.send(embed=embed)
 
     @commands.group()
