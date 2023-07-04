@@ -60,24 +60,25 @@ class JoinLeave(commands.Cog):
                 embed.set_footer(text=_("Număr total de membri: {count} | Legiunea Guild - Since Jul 2023").format(count=guild.member_count))
                 await channel.send(embed=embed)
 
-    @commands.group(name="setchannel")
-    async def set_channel(self, ctx):
+    @commands.group(name="joinleave")
+    async def joinleave(self, ctx):
         """Comenzi pentru setarea canalului de Join și Leave"""
         pass
 
-    @set_channel.command(name="bun_venit")
+    @joinleave.command(name="setchannel")
     @commands.has_permissions(manage_guild=True)
-    async def set_bun_venit(self, ctx, channel: discord.TextChannel):
-        """Setează canalul pentru mesajul de bun venit"""
-        await self.config.guild(ctx.guild).channel_bun_venit.set(channel.id)
-        await ctx.send(_("Canalul pentru mesajul de bun venit a fost setat la {channel}.").format(channel=channel.mention))
-
-    @set_channel.command(name="ramas_bun")
-    @commands.has_permissions(manage_guild=True)
-    async def set_ramas_bun(self, ctx, channel: discord.TextChannel):
-        """Setează canalul pentru mesajul de rămas bun"""
-        await self.config.guild(ctx.guild).channel_ramas_bun.set(channel.id)
-        await ctx.send(_("Canalul pentru mesajul de rămas bun a fost setat la {channel}.").format(channel=channel.mention))
+    async def set_channel(self, ctx, event_type: str, channel: discord.TextChannel):
+        """Setează canalul pentru mesajul de bun venit sau rămas bun"""
+        guild = ctx.guild
+        event_type = event_type.lower()
+        if event_type == "bun_venit":
+            await self.config.guild(guild).channel_bun_venit.set(channel.id)
+            await ctx.send(_("Canalul pentru mesajul de bun venit a fost setat la {channel}.").format(channel=channel.mention))
+        elif event_type == "ramas_bun":
+            await self.config.guild(guild).channel_ramas_bun.set(channel.id)
+            await ctx.send(_("Canalul pentru mesajul de rămas bun a fost setat la {channel}.").format(channel=channel.mention))
+        else:
+            await ctx.send(_("Te rog specifică un tip valid: `bun_venit` sau `ramas_bun`."))
 
 
 def setup(bot):
