@@ -31,8 +31,8 @@ class JoinLeave(commands.Cog):
         created_at = member.created_at.astimezone(timezone.utc)
         days_since_creation = (timestamp - created_at).days
         embed = discord.Embed(color=discord.Color.green())
-        embed.set_thumbnail(url=member.avatar_url)
-        embed.set_author(name=f"{member.name} a intrat pe serverul de Discord", icon_url=member.avatar_url)
+        embed.set_thumbnail(url=member.avatar.url)
+        embed.set_author(name=f"{member.name} a intrat pe serverul de Discord", icon_url=member.avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
         embed.add_field(name="Creat la:", value=f"{created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC", inline=True)
         embed.add_field(name="Zile de la creare:", value=str(days_since_creation), inline=True)
@@ -52,8 +52,8 @@ class JoinLeave(commands.Cog):
         created_at = member.created_at.astimezone(timezone.utc)
         days_since_creation = (timestamp - created_at).days
         embed = discord.Embed(color=discord.Color.red())
-        embed.set_thumbnail(url=member.avatar_url)
-        embed.set_author(name=f"{member.name} a părăsit serverul de Discord", icon_url=member.avatar_url)
+        embed.set_thumbnail(url=member.avatar.url)
+        embed.set_author(name=f"{member.name} a parasit serverul de Discord", icon_url=member.avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
         embed.add_field(name="Creat la:", value=f"{created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC", inline=True)
         embed.add_field(name="Zile de la creare:", value=str(days_since_creation), inline=True)
