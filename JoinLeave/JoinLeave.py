@@ -68,9 +68,8 @@ class JoinLeave(commands.Cog):
     @joinleave.command(name="setchannel")
     @commands.has_permissions(manage_guild=True)
     async def set_channel(self, ctx, event_type: str, channel: discord.TextChannel):
-        """Setează canalul pentru mesajul de bun venit sau rămas bun"""
+        """Setează canalul pentru mesajul de Join sau Leave"""
         guild = ctx.guild
-        event_type = event_type.lower()
         if event_type == "bun_venit":
             await self.config.guild(guild).channel_bun_venit.set(channel.id)
             await ctx.send(_("Canalul pentru mesajul de bun venit a fost setat la {channel}.").format(channel=channel.mention))
@@ -82,7 +81,7 @@ class JoinLeave(commands.Cog):
 
     @joinleave.command(name="help")
     async def joinleave_help(self, ctx):
-        """Afisează ajutor pentru comenzile de Join și Leave"""
+        """Afișează ajutor pentru comenzile de Join și Leave"""
         prefix = ctx.prefix
         embed = discord.Embed(title=_("Comenzi JoinLeave"), color=discord.Color.blurple())
         embed.add_field(
