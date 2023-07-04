@@ -80,6 +80,23 @@ class JoinLeave(commands.Cog):
         else:
             await ctx.send(_("Te rog specifică un tip valid: `bun_venit` sau `ramas_bun`."))
 
+    @joinleave.command(name="help")
+    async def joinleave_help(self, ctx):
+        """Afisează ajutor pentru comenzile de Join și Leave"""
+        prefix = ctx.prefix
+        embed = discord.Embed(title=_("Comenzi JoinLeave"), color=discord.Color.blurple())
+        embed.add_field(
+            name=f"{prefix}joinleave setchannel bun_venit #nume-canal",
+            value=_("Setează canalul pentru mesajul de bun venit."),
+            inline=False,
+        )
+        embed.add_field(
+            name=f"{prefix}joinleave setchannel ramas_bun #nume-canal",
+            value=_("Setează canalul pentru mesajul de rămas bun."),
+            inline=False,
+        )
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(JoinLeave(bot))
