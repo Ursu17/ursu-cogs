@@ -16,85 +16,72 @@ class JoinLeave(commands.Cog):
         return f"{pre_processed}\n\nVersion: {self.__version__}"
 
     async def red_delete_data_for_user(self, **kwargs):
-        pass  # This cog stores no EUD
+        pass
 
-    def __init__(self):
-        self.config = Config.get_conf(self, identifier=17101996)
-        default_guild_settings = {
-            "channel_bun_venit": None,
-            "channel_ramas_bun": None,
+    def __init__(self, bot):
+        self.bot = bot
+        self.config = Config.get_conf(self, identifier=300920211119)
+        default_guild = {
+            "welcome_channel": None,
+            "farewell_channel": None,
+            "welcome_message": "Bun venit, {member.mention}! Bine ai venit pe server!",
+            "farewell_message": "La revedere, {member.name}! Te mai așteptăm pe server!",
         }
-        self.config.register_guild(**default_guild_settings)
+        self.config.register_guild(**default_guild)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        guild = member.guild
-        channel_id = await self.config.guild(guild).channel_bun_venit()
-        if channel_id:
-            channel = guild.get_channel(channel_id)
-            if channel:
-                embed = discord.Embed(
-                    title=_("Bun venit pe server!"),
-                    description=_("Legiunea EU a intrat pe serverul de Discord al guildului respectiv!"),
-                    color=discord.Color.green(),
-                )
-                embed.set_thumbnail(url=member.avatar_url)
-                embed.add_field(name=_("Legiunea EU"), value=f"{member.name}#{member.discriminator}")
-                embed.set_footer(text=_("Număr total de membri: {count} | Legiunea Guild - Since Jul 2023").format(count=guild.member_count))
-                await channel.send(embed=embed)
+        data = await self.config.guild(member.guild).all()
+        welcome_channel_id = data["welcome_channel"]
+        welcome_message = data["welcome_message"]
+        welcome_channel = self.bot.get_channel(welcome_channel_id)
+        if welcome_channel is not None and welcome_message:
+            message = welcome_message.format(member=member)
+            await welcome_channel.send(message)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        guild = member.guild
-        channel_id = await self.config.guild(guild).channel_ramas_bun()
-        if channel_id:
-            channel = guild.get_channel(channel_id)
-            if channel:
-                embed = discord.Embed(
-                    title=_("La revedere!"),
-                    description=_("Legiunea EU a ieșit de pe serverul de Discord al guildului respectiv. Sperăm să vă mai întoarceți pe server!"),
-                    color=discord.Color.red(),
-                )
-                embed.set_thumbnail(url=member.avatar_url)
-                embed.add_field(name=_("Legiunea EU plecată"), value=f"{member.name}#{member.discriminator}")
-                embed.set_footer(text=_("Număr total de membri: {count} | Legiunea Guild - Since Jul 2023").format(count=guild.member_count))
-                await channel.send(embed=embed)
+        data = await self.config.guild(member.guild).all()
+        farewell_channel_id = data["farewell_channel"]
+        farewell_message = data["farewell_message"]
+        farewell_channel = self.bot.get_channel(farewell_channel_id)
+        if farewell_channel is not None and farewell_message:
+            message = farewell_message.format(member=member)
+            await farewell_channel.send(message)
 
+    @commands.guild_only()
+    @commands.admin_or_permissions(manage_guild=True)
     @commands.group()
     async def joinleave(self, ctx):
-        """Comenzi pentru mesajele de Join și Leave"""
+        """Comenzi pentru canalul de bun venit și rămas bun."""
         pass
 
     @joinleave.command(name="setchannel")
-    async def set_channel(self, ctx, event_type: str, channel: discord.TextChannel):
-        """Setează canalul pentru mesajul de Join sau Leave"""
-        guild = ctx.guild
-        if event_type == "bun_venit":
-            await self.config.guild(guild).channel_bun_venit.set(channel.id)
-            await ctx.send(_("Canalul pentru mesajul de bun venit a fost setat la {channel}.").format(channel=channel.mention))
-        elif event_type == "ramas_bun":
-            await self.config.guild(guild).channel_ramas_bun.set(channel.id)
-            await ctx.send(_("Canalul pentru mesajul de rămas bun a fost setat la {channel}.").format(channel=channel.mention))
+    async def set_channel(self, ctx, channel_type: str, channel: discord.TextChannel):
+        """Setează canalul de bun venit sau rămas bun."""
+        if channel_type.lower() == "welcome":
+            await self.config.guild(ctx.guild).welcome_channel.set(channel.id)
+            await ctx.send(_("Canalul de bun venit a fost setat."))
+        elif channel_type.lower() == "farewell":
+            await self.config.guild(ctx.guild).farewell_channel.set(channel.id)
+            await ctx.send(_("Canalul de rămas bun a fost setat."))
         else:
-            await ctx.send(_("Te rog specifică un tip valid: `bun_venit` sau `ramas_bun`."))
+            await ctx.send(_("Tipul canalului este invalid. Folosește \"welcome\" sau \"farewell\"."))
 
-    @joinleave.command(name="help")
-    async def joinleave_help(self, ctx):
-        """Afișează ajutor pentru comenzile de Join și Leave"""
-        prefix = ctx.prefix
-        embed = discord.Embed(title=_("Comenzi JoinLeave"), color=discord.Color.blurple())
-        embed.add_field(
-            name=f"{prefix}joinleave setchannel bun_venit #nume-canal",
-            value=_("Setează canalul pentru mesajul de bun venit."),
-            inline=False,
-        )
-        embed.add_field(
-            name=f"{prefix}joinleave setchannel ramas_bun #nume-canal",
-            value=_("Setează canalul pentru mesajul de rămas bun."),
-            inline=False,
-        )
-        await ctx.send(embed=embed)
+    @joinleave.command(name="setmessage")
+    async def set_message(self, ctx, message_type: str, *, message: str):
+        """Setează mesajul de bun venit sau rămas bun."""
+        if message_type.lower() == "welcome":
+            await self.config.guild(ctx.guild).welcome_message.set(message)
+            await ctx.send(_("Mesajul de bun venit a fost setat."))
+        elif message_type.lower() == "farewell":
+            await self.config.guild(ctx.guild).farewell_message.set(message)
+            await ctx.send(_("Mesajul de rămas bun a fost setat."))
+        else:
+            await ctx.send(_("Tipul mesajului este invalid. Folosește \"welcome\" sau \"farewell\"."))
 
 
-def setup(bot):
-    bot.add_cog(JoinLeave(bot))
+async def setup(bot):
+    cog = JoinLeave(bot)
+    await cog.initialize()
+    bot.add_cog(cog)
