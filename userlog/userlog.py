@@ -57,9 +57,9 @@ class UserLog(commands.Cog):
         target_state = on_off or not (await self.config.guild(ctx.guild).join())
         await self.config.guild(ctx.guild).join.set(target_state)
         if target_state:
-            await ctx.send("Logging users joining is now enabled.")
+            await ctx.send("Loguri pentru in activate.")
         else:
-            await ctx.send("Logging users joining is now disabled.")
+            await ctx.send("Loguri pentru in dezactivate.")
 
     @userlogset.command(name="leave")
     async def user_leave_log(
@@ -71,16 +71,17 @@ class UserLog(commands.Cog):
         target_state = on_off or not (await self.config.guild(ctx.guild).leave())
         await self.config.guild(ctx.guild).leave.set(target_state)
         if target_state:
-            await ctx.send("Logging users leaving is now enabled.")
+            await ctx.send("Loguri pentru out activate.")
         else:
-            await ctx.send("Logging users leaving is now disabled.")
+            await ctx.send("Loguri pentru out dezactivate.")
 
     @userlogset.command(name="settings")
     async def user_settings(self, ctx: commands.Context):
         """See current settings."""
         data = await self.config.guild(ctx.guild).all()
-        channel = ctx.guild.get_channel(await self.config.guild(ctx.guild).channel())
-        channel = "None" if not channel else channel.mention
+        channel_id = await self.config.guild(ctx.guild).channel()
+        channel = ctx.guild.get_channel(channel_id) if channel_id else None
+        channel_mention = channel.mention if channel else "None"
         embed = discord.Embed(
             colour=await ctx.embed_colour(), timestamp=datetime.datetime.now()
         )
@@ -88,7 +89,7 @@ class UserLog(commands.Cog):
         embed.title = "**__User Log settings:__**"
 
         embed.set_footer(text="*required to function properly")
-        embed.add_field(name="Channel*:", value=channel)
+        embed.add_field(name="Channel*:", value=channel_mention)
         embed.add_field(name="Join:", value=str(data["join"]))
         embed.add_field(name="Leave:", value=str(data["leave"]))
 
@@ -99,57 +100,60 @@ class UserLog(commands.Cog):
         join = await self.config.guild(member.guild).join()
         if not join:
             return
-        channel = member.guild.get_channel(
-            await self.config.guild(member.guild).channel()
-        )
-        if not channel:
-            return
-        time = datetime.datetime.utcnow()
-        users = len(member.guild.members)
-        since_created = (time - member.created_at).days
-        user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
 
-        created_on = f"{user_created} ({since_created} days ago)"
+        channel_id = await self.config.guild(member.guild).channel()
+        if channel_id:
+            channel = member.guild.get_channel(channel_id)
+            if channel:
+                time = datetime.datetime.utcnow()
+                users = len(member.guild.members)
+                since_created = (time - member.created_at).days
+                user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
+                created_on = f"{user_created} (acum {since_created} zile)"
 
-        embed = discord.Embed(
-            description=f"{member.mention} ({member.name}#{member.discriminator})",
-            colour=discord.Colour.green(),
-            timestamp=member.joined_at,
-        )
-        embed.add_field(name="Total Membrii:", value=str(users))
-        embed.add_field(name="Cont creeat la:", value=created_on)
-        embed.set_footer(text=f"User ID: {member.id}")
-        embed.set_author(
-            name=f"{member.name} a intrat pe discordul guildului",
-            url=member.avatar_url,
-            icon_url=member.avatar_url,
-        )
-        embed.set_thumbnail(url=member.avatar_url)
-        await channel.send(embed=embed)
+                embed = discord.Embed(
+                    description=f"{member.mention} ({member.name}#{member.discriminator})",
+                    colour=discord.Colour.green(),
+                    timestamp=member.joined_at,
+                )
+                embed.add_field(name="Total Membrii:", value=str(users))
+                embed.add_field(name="Cont creeat la:", value=created_on)
+                embed.set_footer(text=f"User ID: {member.id}")
+                embed.set_author(
+                    name=f"{member.name} a intrat pe discordul guildului",
+                    url=member.avatar_url,
+                    icon_url=member.avatar_url,
+                )
+                embed.set_thumbnail(url=member.avatar_url)
+                await channel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         leave = await self.config.guild(member.guild).leave()
         if not leave:
             return
-        channel = member.guild.get_channel(
-            await self.config.guild(member.guild).channel()
-        )
-        if not channel:
-            return
-        time = datetime.datetime.utcnow()
-        users = len(member.guild.members)
-        embed = discord.Embed(
-            description=f"{member.mention} ({member.name}#{member.discriminator})",
-            colour=discord.Colour.red(),
-            timestamp=time,
-        )
-        embed.add_field(name="Total Membrii:", value=str(users))
-        embed.set_footer(text=f"User ID: {member.id}")
-        embed.set_author(
-            name=f"{member.name} a iesit de pe discord. Urat asa...",
-            url=member.avatar_url,
-            icon_url=member.avatar_url,
-        )
-        embed.set_thumbnail(url=member.avatar_url)
-        await channel.send(embed=embed)
+
+        channel_id = await self.config.guild(member.guild).channel()
+        if channel_id:
+            channel = member.guild.get_channel(channel_id)
+            if channel:
+                time = datetime.datetime.utcnow()
+                users = len(member.guild.members)
+                embed = discord.Embed(
+                    description=f"{member.mention} ({member.name}#{member.discriminator})",
+                    colour=discord.Colour.red(),
+                    timestamp=time,
+                )
+                embed.add_field(name="Total Membrii:", value=str(users))
+                embed.set_footer(text=f"User ID: {member.id}")
+                embed.set_author(
+                    name=f"{member.name} a iesit de pe discord. Urat asa...",
+                    url=member.avatar_url,
+                    icon_url=member.avatar_url,
+                )
+                embed.set_thumbnail(url=member.avatar_url)
+                await channel.send(embed=embed)
+
+
+def setup(bot):
+    bot.add_cog(UserLog(bot))
