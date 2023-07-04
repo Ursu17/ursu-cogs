@@ -30,7 +30,10 @@ class JoinLeave(commands.Cog):
         timestamp = datetime.now(timezone.utc)
         created_at = member.created_at.astimezone(timezone.utc)
         days_since_creation = (timestamp - created_at).days
-        embed = discord.Embed(color=discord.Color.green())
+        embed = discord.Embed(
+            description=f"{member.mention} ({member.name}#{member.discriminator})",
+            timestamp=member.joined_at,
+            color=discord.Color.green())
         embed.set_thumbnail(url=member.avatar.url)
         embed.set_author(name=f"{member.name} a intrat pe serverul de Discord", icon_url=member.avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
