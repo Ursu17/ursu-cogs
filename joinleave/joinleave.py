@@ -53,12 +53,15 @@ class JoinLeave(commands.Cog):
         timestamp = datetime.now(timezone.utc)
         created_at = member.created_at.astimezone(timezone.utc)
         days_since_creation = (timestamp - created_at).days
-        embed = discord.Embed(color=discord.Color.red())
+        embed = discord.Embed(
+            description=f"{member.mention} ({member.name}#{member.discriminator})",
+            timestamp=time,
+            color=discord.Color.red())
         embed.set_thumbnail(url=member.avatar.url)
         embed.set_author(name=f"{member.name} a părăsit serverul de Discord", icon_url=member.avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
         embed.add_field(name="Creat la:", value=f"{created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC", inline=True)
-        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')} UTC (acum {days_since_creation} zile)")
+        embed.set_footer(text=f"Data și ora: {timestamp.strftime('%Y-%m-%d %H:%M:%S')} (acum {days_since_creation} zile)")
         await channel.send(embed=embed)
 
     @commands.group()
