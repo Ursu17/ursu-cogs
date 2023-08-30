@@ -19,13 +19,28 @@ class ClockInOut(commands.Cog):
         self.config.register_guild(**default_guild)
         self.clock_in_time = None
 
-    @commands.command()
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        data = await self.config.guild(member.guild).all()
+        # Restul codului on_member_join
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        data = await self.config.guild(member.guild).all()
+        # Restul codului on_member_remove
+
+    @commands.group()
+    async def clock(self, ctx):
+        """Comenzi pentru înregistrarea orelor de intrare/ieșire"""
+        pass
+
+    @clock.command(name="in")
     async def clock_in(self, ctx):
         """Înregistrează intrarea la serviciu"""
         self.clock_in_time = datetime.now(timezone.utc)
-        await ctx.send(f"{ctx.author.mention} a intrat în tură la: {self.clock_in_time.strftime('%H:%M')}")
+        await ctx.send(f"{ctx.author.mention} a înregistrat ora de intrare: {self.clock_in_time.strftime('%H:%M')}")
 
-    @commands.command()
+    @clock.command(name="out")
     async def clock_out(self, ctx):
         """Înregistrează ieșirea de la serviciu și calculează diferența de timp"""
         if not hasattr(self, "clock_in_time") or self.clock_in_time is None:
@@ -37,15 +52,43 @@ class ClockInOut(commands.Cog):
         elapsed_minutes = int(elapsed_time.total_seconds() / 60)
         self.clock_in_time = None
         
-        await ctx.send(f"{ctx.author.mention} a ieșit din tura la: {clock_out_time.strftime('%H:%M')} "
+        await ctx.send(f"{ctx.author.mention} a înregistrat ora de ieșire: {clock_out_time.strftime('%H:%M')} "
                        f"({elapsed_minutes} minute)")
 
-    @commands.command(name="csetchannel")
-    async def set_channel(self, ctx, event: str, channel: discord.TextChannel):
+    @clock.command(name="setchannel")
+    async def clock_set_channel(self, ctx, event: str, channel: discord.TextChannel):
         """Configurează canalul pentru evenimentul specificat (intrare/ieșire)"""
-        # Restul codului set_channel
+        if event.lower() not in ["in", "out"]:
+            await ctx.send(_("Tipul canalului este invalid. Folosește \"in\" sau \"out\"."))
+            return
 
-    @commands.command(name="cresetchannel")
-    async def reset_channel(self, ctx, event: str):
+        event = event.lower()
+        data = await self.config.guild(ctx.guild).all()
+
+        if event == "in":
+            data["clock_in_channel"] = channel.id
+            await ctx.send(_("Canalul pentru evenimentul de intrare a fost configurat."))
+        elif event == "out":
+            data["clock_out_channel"] = channel.id
+            await ctx.send(_("Canalul pentru evenimentul de ieșire a fost configurat."))
+
+        await self.config.guild(ctx.guild).set(data)
+
+    @clock.command(name="resetchannel")
+    async def clock_reset_channel(self, ctx, event: str):
         """Resetează canalul pentru evenimentul specificat (intrare/ieșire)"""
-        # Restul codului reset_channel
+        if event.lower() not in ["in", "out"]:
+            await ctx.send(_("Tipul canalului este invalid. Folosește \"in\" sau \"out\"."))
+            return
+
+        event = event.lower()
+        data = await self.config.guild(ctx.guild).all()
+
+        if event == "in":
+            data["clock_in_channel"] = None
+            await ctx.send(_("Canalul pentru evenimentul de intrare a fost resetat."))
+        elif event == "out":
+            data["clock_out_channel"] = None
+            await ctx.send(_("Canalul pentru evenimentul de ieșire a fost resetat."))
+
+        await self.config.guild(ctx.guild).set(data)
