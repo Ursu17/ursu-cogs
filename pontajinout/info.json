@@ -1,0 +1,14 @@
+{
+    "author": [
+        "Ursu"
+    ],
+    "description": "Script folosit pentru clock in out mafie.",
+    "hidden": false,
+    "install_msg": "Ai instalat script cu succes.",
+    "short": "Notificari in out",
+    "tags": [ 
+        "Join"
+    ],
+    "end_user_data_statement": "This cog does stores logs for in/out.",
+    "min_bot_version": "3.5.0"
+}
