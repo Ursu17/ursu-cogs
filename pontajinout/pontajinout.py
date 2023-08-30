@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from redbot.core import commands, Config
 from redbot.core.i18n import Translator, cog_i18n
 
-_ = Translator("PontajInOut", __file__)
+_ = Translator("ClockInOut", __file__)
 
 @cog_i18n(_)
-class PontajInOut(commands.Cog):
+class ClockInOut(commands.Cog):
     """Pontaj In/Out events"""
 
     def __init__(self, bot):
@@ -29,6 +29,11 @@ class PontajInOut(commands.Cog):
         data = await self.config.guild(member.guild).all()
         # Restul codului on_member_remove
 
+    async def post_message(self, channel, content):
+        if channel is not None:
+            message = await channel.send(content)
+            await message.delete(delay=10)  # Șterge mesajul după 10 secunde
+
     @commands.group()
     async def pontaj(self, ctx):
         """Comenzi pentru înregistrarea pontajului de intrare/ieșire"""
@@ -38,13 +43,15 @@ class PontajInOut(commands.Cog):
     async def pontaj_in(self, ctx):
         """Înregistrează pontajul de intrare"""
         self.pontaj_in_time = datetime.now(timezone.utc)
-        await ctx.send(f"{ctx.author.mention} a înregistrat pontajul de intrare: {self.pontaj_in_time.strftime('%H:%M')}")
+        await ctx.message.delete()
+        await self.post_message(ctx.guild.get_channel(await self.config.guild(ctx.guild).pontaj_in_channel),
+                                f"{ctx.author.mention} a înregistrat pontajul de intrare: {self.pontaj_in_time.strftime('%H:%M')}")
 
     @pontaj.command(name="out")
     async def pontaj_out(self, ctx):
         """Înregistrează pontajul de ieșire și calculează durata de lucru"""
         if not hasattr(self, "pontaj_in_time") or self.pontaj_in_time is None:
-            await ctx.send("Nu ai înregistrat încă pontajul de intrare.")
+            await ctx.message.delete()
             return
         
         pontaj_out_time = datetime.now(timezone.utc)
@@ -52,8 +59,10 @@ class PontajInOut(commands.Cog):
         work_minutes = int(work_duration.total_seconds() / 60)
         self.pontaj_in_time = None
         
-        await ctx.send(f"{ctx.author.mention} a înregistrat pontajul de ieșire: {pontaj_out_time.strftime('%H:%M')} "
-                       f"({work_minutes} minute)")
+        await ctx.message.delete()
+        await self.post_message(ctx.guild.get_channel(await self.config.guild(ctx.guild).pontaj_out_channel),
+                                f"{ctx.author.mention} a înregistrat pontajul de ieșire: {pontaj_out_time.strftime('%H:%M')} "
+                                f"({work_minutes} minute)")
 
     @pontaj.command(name="sc")
     async def pontaj_set_channel(self, ctx, event: str, channel: discord.TextChannel):
