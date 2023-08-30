@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from redbot.core import commands, Config
 from redbot.core.i18n import Translator, cog_i18n
 
-_ = Translator("ClockInOut", __file__)
+_ = Translator("PontajInOut", __file__)
 
 @cog_i18n(_)
-class ClockInOut(commands.Cog):
+class PontajInOut(commands.Cog):
     """Pontaj In/Out events"""
 
     def __init__(self, bot):
