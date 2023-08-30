@@ -1,4 +1,4 @@
-from .clockinout import ClockInOut
+from .clockinout import PontajInOut
 from pathlib import Path
 import json
 
@@ -7,5 +7,5 @@ with open(Path(__file__).parent / "info.json") as fp:
 
 
 async def setup(bot):
-    cog = ClockInOut(bot)
+    cog = PontajInOut(bot)
     await bot.add_cog(cog)
