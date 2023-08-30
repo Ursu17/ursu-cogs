@@ -55,7 +55,7 @@ class ClockInOut(commands.Cog):
         await ctx.send(f"{ctx.author.mention} a înregistrat pontajul de ieșire: {pontaj_out_time.strftime('%H:%M')} "
                        f"({work_minutes} minute)")
 
-    @pontaj.command(name="setchannel")
+    @pontaj.command(name="sc")
     async def pontaj_set_channel(self, ctx, event: str, channel: discord.TextChannel):
         """Configurează canalul pentru evenimentul specificat (intrare/ieșire)"""
         if event.lower() not in ["in", "out"]:
@@ -67,14 +67,14 @@ class ClockInOut(commands.Cog):
 
         if event == "in":
             data["pontaj_in_channel"] = channel.id
+            await self.config.guild(ctx.guild).set(data)
             await ctx.send(_("Canalul pentru evenimentul de intrare a fost configurat."))
         elif event == "out":
             data["pontaj_out_channel"] = channel.id
+            await self.config.guild(ctx.guild).set(data)
             await ctx.send(_("Canalul pentru evenimentul de ieșire a fost configurat."))
 
-        await self.config.guild(ctx.guild).set(data)
-
-    @pontaj.command(name="resetchannel")
+    @pontaj.command(name="rc")
     async def pontaj_reset_channel(self, ctx, event: str):
         """Resetează canalul pentru evenimentul specificat (intrare/ieșire)"""
         if event.lower() not in ["in", "out"]:
@@ -86,9 +86,9 @@ class ClockInOut(commands.Cog):
 
         if event == "in":
             data["pontaj_in_channel"] = None
+            await self.config.guild(ctx.guild).set(data)
             await ctx.send(_("Canalul pentru evenimentul de intrare a fost resetat."))
         elif event == "out":
             data["pontaj_out_channel"] = None
+            await self.config.guild(ctx.guild).set(data)
             await ctx.send(_("Canalul pentru evenimentul de ieșire a fost resetat."))
-
-        await self.config.guild(ctx.guild).set(data)
