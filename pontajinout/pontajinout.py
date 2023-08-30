@@ -75,9 +75,11 @@ class PontajInOut(commands.Cog):
         pontaj_out_time = self.bucharest_tz.localize(datetime.now())
         work_duration = pontaj_out_time - user_pontaje[-1]
         work_minutes = int(work_duration.total_seconds() / 60)
-        user_pontaje.pop()  # Scoatem ultimul pontaj de intrare
 
-        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() for dt in user_pontaje])
+        await ctx.send(f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time.strftime('%H:%M')} "
+                       f"(A stat în tură {work_minutes} minute)")
+
+        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje[:-1])
 
         try:
             await ctx.message.delete()
