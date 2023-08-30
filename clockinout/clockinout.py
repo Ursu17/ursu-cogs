@@ -13,8 +13,8 @@ class ClockInOut(commands.Cog):
         self.bot = bot
         self.config = Config.get_conf(self, identifier=1234567890)
         default_guild = {
-            "pontaj_in_channel": 1145724596893528135,
-            "pontaj_out_channel": 1145724596893528135,
+            "pontaj_in_channel": None,
+            "pontaj_out_channel": None,
         }
         self.config.register_guild(**default_guild)
         self.pontaj_in_time = None
