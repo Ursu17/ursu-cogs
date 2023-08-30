@@ -56,16 +56,16 @@ class PontajInOut(commands.Cog):
         guild_settings = await self.config.guild(ctx.guild).all()
         user_pontaje = guild_settings["pontaje"].get(ctx.author.id, [])
 
-        if not user_pontaje:
+        if len(user_pontaje) < 2 or user_pontaje[-1] is None:
             await ctx.send("Folosește mai întâi **!pontaj in**.")
             return
         
         pontaj_out_time = datetime.now(self.bucharest_tz)
         work_duration = pontaj_out_time - user_pontaje[-1]
         work_minutes = int(work_duration.total_seconds() / 60)
-        user_pontaje.pop()  # Scoatem ultimul pontaj de intrare
+        user_pontaje[-1] = None  # Marchează ultimul pontaj de intrare ca fiind folosit pentru clock out
 
-        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() for dt in user_pontaje])
+        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() if dt else None for dt in user_pontaje])
 
         try:
             await ctx.message.delete()
@@ -78,7 +78,7 @@ class PontajInOut(commands.Cog):
         except discord.NotFound:
             pass
 
-        await ctx.send(f"Clock in: {user_pontaje[-1].strftime('%H:%M')} | Clock Out: {pontaj_out_time.strftime('%H:%M')} "
+        await ctx.send(f"Clock in: {user_pontaje[-2].strftime('%H:%M')} | Clock Out: {pontaj_out_time.strftime('%H:%M')} "
                        f"({work_minutes} minute)")
 
     # Restul codului pentru comenzi și funcții auxiliare
