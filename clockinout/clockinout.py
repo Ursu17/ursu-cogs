@@ -19,28 +19,13 @@ class ClockInOut(commands.Cog):
         self.config.register_guild(**default_guild)
         self.clock_in_time = None
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        data = await self.config.guild(member.guild).all()
-        # Restul codului on_member_join
-
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        data = await self.config.guild(member.guild).all()
-        # Restul codului on_member_remove
-
-    @commands.group()
-    async def clock(self, ctx):
-        """Comenzi pentru înregistrarea orelor de intrare/ieșire"""
-        pass
-
-    @clock.command(name="in")
+    @commands.command()
     async def clock_in(self, ctx):
         """Înregistrează intrarea la serviciu"""
         self.clock_in_time = datetime.now(timezone.utc)
-        await ctx.send(f"Clock In: {self.clock_in_time.strftime('%H:%M')}")
+        await ctx.send(f"{ctx.author.mention} a înregistrat ora de intrare: {self.clock_in_time.strftime('%H:%M')}")
 
-    @clock.command(name="out")
+    @commands.command()
     async def clock_out(self, ctx):
         """Înregistrează ieșirea de la serviciu și calculează diferența de timp"""
         if not hasattr(self, "clock_in_time") or self.clock_in_time is None:
@@ -52,15 +37,15 @@ class ClockInOut(commands.Cog):
         elapsed_minutes = int(elapsed_time.total_seconds() / 60)
         self.clock_in_time = None
         
-        await ctx.send(f"Clock Out: {clock_out_time.strftime('%H:%M')} "
+        await ctx.send(f"{ctx.author.mention} a înregistrat ora de ieșire: {clock_out_time.strftime('%H:%M')} "
                        f"({elapsed_minutes} minute)")
 
-    @clock.command(name="setchannel")
+    @commands.command(name="setchannel")
     async def set_channel(self, ctx, event: str, channel: discord.TextChannel):
         """Configurează canalul pentru evenimentul specificat (intrare/ieșire)"""
         # Restul codului set_channel
 
-    @clock.command(name="resetchannel")
+    @commands.command(name="resetchannel")
     async def reset_channel(self, ctx, event: str):
         """Resetează canalul pentru evenimentul specificat (intrare/ieșire)"""
         # Restul codului reset_channel
