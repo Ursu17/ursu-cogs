@@ -19,21 +19,6 @@ class PontajInOut(commands.Cog):
         self.config.register_guild(**default_guild)
         self.pontaj_in_time = None
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        data = await self.config.guild(member.guild).all()
-        # Restul codului on_member_join
-
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        data = await self.config.guild(member.guild).all()
-        # Restul codului on_member_remove
-
-    async def post_message(self, channel, content):
-        if channel is not None:
-            message = await channel.send(content)
-            await message.delete(delay=10)  # Șterge mesajul după 10 secunde
-
     @commands.group()
     async def pontaj(self, ctx):
         """Comenzi pentru înregistrarea pontajului de intrare/ieșire"""
