@@ -122,3 +122,7 @@ class PontajInOut(commands.Cog):
 
     async def delete_command(self, ctx):
         await ctx.message.delete(delay=3)  # Șterge mesajul după 3 secunde
+
+# Instanțiați și adăugați extensia la bot
+def setup(bot):
+    bot.add_cog(PontajInOut(bot))
