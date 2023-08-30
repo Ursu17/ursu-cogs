@@ -45,7 +45,7 @@ class ClockInOut(commands.Cog):
         self.pontaj_in_time = datetime.now(timezone.utc)
         await ctx.message.delete()
         await self.post_message(ctx.guild.get_channel(await self.config.guild(ctx.guild).pontaj_in_channel),
-                                f"{ctx.author.mention} a înregistrat pontajul de intrare: {self.pontaj_in_time.strftime('%H:%M')}")
+                                f"{ctx.author.mention} a  intrat în tură la ora **{self.pontaj_in_time.strftime('%H:%M')}**")
 
     @pontaj.command(name="out")
     async def pontaj_out(self, ctx):
@@ -61,7 +61,7 @@ class ClockInOut(commands.Cog):
         
         await ctx.message.delete()
         await self.post_message(ctx.guild.get_channel(await self.config.guild(ctx.guild).pontaj_out_channel),
-                                f"{ctx.author.mention} a înregistrat pontajul de ieșire: {pontaj_out_time.strftime('%H:%M')} "
+                                f"{ctx.author.mention} a ieșit din tură la ora **{pontaj_out_time.strftime('%H:%M')**} "
                                 f"({work_minutes} minute)")
 
     @pontaj.command(name="sc")
