@@ -22,8 +22,6 @@ class PontajInOut(commands.Cog):
         self.config.register_guild(**default_guild)
         self.bucharest_tz = timezone('Europe/Bucharest')
 
-    # Restul codului on_member_join și on_member_remove
-
     async def post_message(self, channel, content):
         if channel is not None:
             await channel.send(content)
@@ -68,42 +66,39 @@ class PontajInOut(commands.Cog):
         guild_settings = await self.config.guild(ctx.guild).all()
         user_pontaje = guild_settings["pontaje"].get(ctx.author.id, [])
 
-        if not user_pontaje:
-            await ctx.send("Folosește mai întâi **!pontaj in**.")
-            return
-        
-        pontaj_out_time = self.bucharest_tz.localize(datetime.now())
-        work_duration = pontaj_out_time - user_pontaje[-1]
-        work_minutes = int(work_duration.total_seconds() / 60)
+        if user_pontaje:
+            pontaj_out_time = self.bucharest_tz.localize(datetime.now())
+            work_duration = pontaj_out_time - user_pontaje[-1]
+            work_minutes = int(work_duration.total_seconds() / 60)
 
-        await ctx.send(f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time.strftime('%H:%M')} "
-                       f"(A stat în tură {work_minutes} minute)")
+            await ctx.send(f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time.strftime('%H:%M')} "
+                           f"(A stat în tură {work_minutes} minute)")
 
-        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje[:-1])
+            await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje[:-1])
 
-        try:
-            await ctx.message.delete()
-        except discord.NotFound:
-            pass
-        
-        guild_settings = await self.config.guild(ctx.guild).all()
-        pontaj_out_channel_id = guild_settings["pontaj_out_channel"]
-        pontaj_out_channel = ctx.guild.get_channel(pontaj_out_channel_id)
+            try:
+                await ctx.message.delete()
+            except discord.NotFound:
+                pass
 
-        if pontaj_out_channel:
-            await self.post_message(pontaj_out_channel,
-                                    f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time.strftime('%H:%M')} "
-                                    f"(A stat în tură {work_minutes} minute)")
+            guild_settings = await self.config.guild(ctx.guild).all()
+            pontaj_out_channel_id = guild_settings["pontaj_out_channel"]
+            pontaj_out_channel = ctx.guild.get_channel(pontaj_out_channel_id)
+
+            if pontaj_out_channel:
+                await self.post_message(pontaj_out_channel,
+                                        f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time.strftime('%H:%M')} "
+                                        f"(A stat în tură {work_minutes} minute)")
+            else:
+                await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
+
+            await asyncio.sleep(3)
+            try:
+                await ctx.message.delete()
+            except discord.NotFound:
+                pass
         else:
-            await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
-
-        await asyncio.sleep(3)
-        try:
-            await ctx.message.delete()
-        except discord.NotFound:
-            pass
-
-    # Restul codului pentru comenzi și funcții auxiliare
+            await ctx.send("Folosește mai întâi **!pontaj in**.")
 
 # Instanțiați și adăugați extensia la bot
 def setup(bot):
