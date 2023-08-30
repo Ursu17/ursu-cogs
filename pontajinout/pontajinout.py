@@ -1,7 +1,8 @@
 import discord
-from datetime import datetime, timezone
+from datetime import datetime
 from redbot.core import commands, Config
 from redbot.core.i18n import Translator, cog_i18n
+from pytz import timezone
 
 _ = Translator("PontajInOut", __file__)
 
@@ -18,30 +19,20 @@ class PontajInOut(commands.Cog):
         }
         self.config.register_guild(**default_guild)
         self.pontaj_in_time = None
+        self.bucharest_tz = timezone('Europe/Bucharest')
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        data = await self.config.guild(member.guild).all()
-        # Restul codului on_member_join
-
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        data = await self.config.guild(member.guild).all()
-        # Restul codului on_member_remove
+    # Restul codului on_member_join și on_member_remove
 
     async def post_message(self, channel, content):
         if channel is not None:
             await channel.send(content)
 
-    @commands.group()
-    async def pontaj(self, ctx):
-        """Comenzi pentru înregistrarea pontajului de intrare/ieșire"""
-        pass
+    # Restul codului pentru comenzi
 
     @pontaj.command(name="in")
     async def pontaj_in(self, ctx):
         """Înregistrează pontajul de intrare"""
-        self.pontaj_in_time = datetime.now(timezone.utc)
+        self.pontaj_in_time = datetime.now(self.bucharest_tz)
         await ctx.message.delete()
         await self.delete_command(ctx)
 
@@ -62,7 +53,7 @@ class PontajInOut(commands.Cog):
             await ctx.message.delete()
             return
         
-        pontaj_out_time = datetime.now(timezone.utc)
+        pontaj_out_time = datetime.now(self.bucharest_tz)
         work_duration = pontaj_out_time - self.pontaj_in_time
         work_minutes = int(work_duration.total_seconds() / 60)
         self.pontaj_in_time = None
@@ -81,43 +72,7 @@ class PontajInOut(commands.Cog):
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
 
-    @pontaj.command(name="sc")
-    async def pontaj_set_channel(self, ctx, event: str, channel: discord.TextChannel):
-        """Configurează canalul pentru evenimentul specificat (intrare/ieșire)"""
-        if event.lower() not in ["in", "out"]:
-            await ctx.send(_("Tipul canalului este invalid. Folosește \"in\" sau \"out\"."))
-            return
-
-        event = event.lower()
-        data = await self.config.guild(ctx.guild).all()
-
-        if event == "in":
-            data["pontaj_in_channel"] = channel.id
-            await self.config.guild(ctx.guild).set(data)
-            await ctx.send(_("Canalul pentru evenimentul de intrare a fost configurat."))
-        elif event == "out":
-            data["pontaj_out_channel"] = channel.id
-            await self.config.guild(ctx.guild).set(data)
-            await ctx.send(_("Canalul pentru evenimentul de ieșire a fost configurat."))
-
-    @pontaj.command(name="rc")
-    async def pontaj_reset_channel(self, ctx, event: str):
-        """Resetează canalul pentru evenimentul specificat (intrare/ieșire)"""
-        if event.lower() not in ["in", "out"]:
-            await ctx.send(_("Tipul canalului este invalid. Folosește \"in\" sau \"out\"."))
-            return
-
-        event = event.lower()
-        data = await self.config.guild(ctx.guild).all()
-
-        if event == "in":
-            data["pontaj_in_channel"] = None
-            await self.config.guild(ctx.guild).set(data)
-            await ctx.send(_("Canalul pentru evenimentul de intrare a fost resetat."))
-        elif event == "out":
-            data["pontaj_out_channel"] = None
-            await self.config.guild(ctx.guild).set(data)
-            await ctx.send(_("Canalul pentru evenimentul de ieșire a fost resetat."))
+    # Restul codului pentru comenzi
 
     async def delete_command(self, ctx):
         await ctx.message.delete(delay=3)  # Șterge mesajul după 3 secunde
