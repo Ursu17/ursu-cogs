@@ -41,7 +41,10 @@ class PontajInOut(commands.Cog):
         user_pontaje.append(self.bucharest_tz.localize(datetime.now()))
         await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() for dt in user_pontaje])
 
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except discord.NotFound:
+            pass
 
         guild_settings = await self.config.guild(ctx.guild).all()
         pontaj_in_channel_id = guild_settings["pontaj_in_channel"]
@@ -54,7 +57,10 @@ class PontajInOut(commands.Cog):
             await ctx.send("Canalul pentru înregistrarea pontajului de intrare nu este configurat sau nu există.")
 
         await asyncio.sleep(3)
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except discord.NotFound:
+            pass
 
     # Restul codului pentru comenzi și funcții auxiliare
 
