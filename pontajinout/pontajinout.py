@@ -57,13 +57,12 @@ class PontajInOut(commands.Cog):
         user_pontaje = guild_settings["pontaje"].get(ctx.author.id, [])
 
         if len(user_pontaje) < 2 or user_pontaje[-1] is None:
-            await ctx.send("Folosește mai întâi **!pontaj in**.")
             return
         
         pontaj_out_time = datetime.now(self.bucharest_tz)
         work_duration = pontaj_out_time - user_pontaje[-1]
         work_minutes = int(work_duration.total_seconds() / 60)
-        user_pontaje[-1] = None  # Marchează ultimul pontaj de intrare ca fiind folosit pentru clock out
+        user_pontaje[-1] = None
 
         await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() if dt else None for dt in user_pontaje])
 
