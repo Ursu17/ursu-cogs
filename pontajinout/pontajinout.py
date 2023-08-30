@@ -17,7 +17,7 @@ class PontajInOut(commands.Cog):
         default_guild = {
             "pontaj_in_channel": None,
             "pontaj_out_channel": None,
-            "pontaje": {},  # Dicționar pentru a stoca perechi de pontaje (in, out) pentru fiecare utilizator
+            "pontaje": {},  # Dicționar pentru a stoca pontaje individuale pentru fiecare utilizator
         }
         self.config.register_guild(**default_guild)
         self.bucharest_tz = timezone('Europe/Bucharest')
@@ -35,24 +35,14 @@ class PontajInOut(commands.Cog):
     async def pontaj_in(self, ctx):
         """Înregistrează pontajul de intrare"""
         guild_settings = await self.config.guild(ctx.guild).all()
-        user_pontaje = guild_settings["pontaje"].get(ctx.author.id, {})
-        user_pontaje["in"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje)
+        user_pontaje = guild_settings["pontaje"].get(ctx.author.id, [])
+        user_pontaje.append(datetime.now(self.bucharest_tz))
+        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() for dt in user_pontaje])
 
         try:
             await ctx.message.delete()
         except discord.NotFound:
             pass
-
-        guild_settings = await self.config.guild(ctx.guild).all()
-        pontaj_in_channel_id = guild_settings["pontaj_in_channel"]
-        pontaj_in_channel = ctx.guild.get_channel(pontaj_in_channel_id)
-
-        if pontaj_in_channel:
-            await self.post_message(pontaj_in_channel,
-                                    f"{ctx.author.mention} a înregistrat pontajul de intrare la ora {datetime.now().strftime('%H:%M')}")
-        else:
-            await ctx.send("Canalul pentru înregistrarea pontajului de intrare nu este configurat sau nu există.")
 
         await asyncio.sleep(3)
         try:
@@ -64,43 +54,34 @@ class PontajInOut(commands.Cog):
     async def pontaj_out(self, ctx):
         """Înregistrează pontajul de ieșire și calculează durata de lucru"""
         guild_settings = await self.config.guild(ctx.guild).all()
-        user_pontaje = guild_settings["pontaje"].get(ctx.author.id, {})
+        user_pontaje = guild_settings["pontaje"].get(ctx.author.id, [])
 
-        if "in" in user_pontaje:
-            pontaj_out_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            work_duration = datetime.strptime(pontaj_out_time, '%Y-%m-%d %H:%M:%S') - datetime.strptime(user_pontaje["in"], '%Y-%m-%d %H:%M:%S')
-            work_minutes = int(work_duration.total_seconds() / 60)
-
-            await ctx.send(f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time} "
-                           f"(A stat în tură {work_minutes} minute)")
-
-            user_pontaje.pop("in", None)
-            user_pontaje["out"] = pontaj_out_time
-            await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje)
-
-            try:
-                await ctx.message.delete()
-            except discord.NotFound:
-                pass
-
-            guild_settings = await self.config.guild(ctx.guild).all()
-            pontaj_out_channel_id = guild_settings["pontaj_out_channel"]
-            pontaj_out_channel = ctx.guild.get_channel(pontaj_out_channel_id)
-
-            if pontaj_out_channel:
-                await self.post_message(pontaj_out_channel,
-                                        f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time} "
-                                        f"(A stat în tură {work_minutes} minute)")
-            else:
-                await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
-
-            await asyncio.sleep(3)
-            try:
-                await ctx.message.delete()
-            except discord.NotFound:
-                pass
-        else:
+        if not user_pontaje:
             await ctx.send("Folosește mai întâi **!pontaj in**.")
+            return
+        
+        pontaj_out_time = datetime.now(self.bucharest_tz)
+        work_duration = pontaj_out_time - user_pontaje[-1]
+        work_minutes = int(work_duration.total_seconds() / 60)
+        user_pontaje.pop()  # Scoatem ultimul pontaj de intrare
+
+        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() for dt in user_pontaje])
+
+        try:
+            await ctx.message.delete()
+        except discord.NotFound:
+            pass
+
+        await asyncio.sleep(3)
+        try:
+            await ctx.message.delete()
+        except discord.NotFound:
+            pass
+
+        await ctx.send(f"Clock in: {user_pontaje[-1].strftime('%H:%M')} | Clock Out: {pontaj_out_time.strftime('%H:%M')} "
+                       f"({work_minutes} minute)")
+
+    # Restul codului pentru comenzi și funcții auxiliare
 
 # Instanțiați și adăugați extensia la bot
 def setup(bot):
