@@ -1,4 +1,5 @@
 import discord
+import asyncio
 from datetime import datetime
 from redbot.core import commands, Config
 from redbot.core.i18n import Translator, cog_i18n
@@ -27,12 +28,6 @@ class PontajInOut(commands.Cog):
         if channel is not None:
             await channel.send(content)
 
-    def serialize_datetime(self, dt):
-        return dt.strftime('%Y-%m-%d %H:%M:%S')
-
-    def deserialize_datetime(self, dt_str):
-        return datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
-
     @commands.group()
     async def pontaj(self, ctx):
         """Comenzi pentru înregistrarea pontajului de intrare/ieșire"""
@@ -43,11 +38,10 @@ class PontajInOut(commands.Cog):
         """Înregistrează pontajul de intrare"""
         guild_settings = await self.config.guild(ctx.guild).all()
         user_pontaje = guild_settings["pontaje"].get(ctx.author.id, [])
-        user_pontaje.append(self.serialize_datetime(datetime.now(self.bucharest_tz)))
-        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje)
+        user_pontaje.append(self.bucharest_tz.localize(datetime.now()))
+        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=[dt.isoformat() for dt in user_pontaje])
 
         await ctx.message.delete()
-        await self.delete_command(ctx)
 
         guild_settings = await self.config.guild(ctx.guild).all()
         pontaj_in_channel_id = guild_settings["pontaj_in_channel"]
@@ -55,9 +49,12 @@ class PontajInOut(commands.Cog):
 
         if pontaj_in_channel:
             await self.post_message(pontaj_in_channel,
-                                    f"{ctx.author.mention} a înregistrat pontajul de intrare: {user_pontaje[-1]}")
+                                    f"{ctx.author.mention} a înregistrat pontajul de intrare la ora {user_pontaje[-1].strftime('%H:%M')}")
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de intrare nu este configurat sau nu există.")
+
+        await asyncio.sleep(3)
+        await ctx.message.delete()
 
     # Restul codului pentru comenzi și funcții auxiliare
 
