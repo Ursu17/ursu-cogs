@@ -45,7 +45,7 @@ class PontajInOut(commands.Cog):
 
         if pontaj_in_channel:
             await self.post_message(pontaj_in_channel,
-                                    f"{ctx.author.mention} a intra în tură la ora **{self.pontaj_in_time.strftime('%H:%M')}**")
+                                    f"{ctx.author.mention} a intrat în tură la ora **{self.pontaj_in_time.strftime('%H:%M')}**")
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de intrare nu este configurat sau nu există.")
 
