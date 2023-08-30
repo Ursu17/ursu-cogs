@@ -37,7 +37,7 @@ class PontajInOut(commands.Cog):
         """Înregistrează pontajul de intrare"""
         guild_settings = await self.config.guild(ctx.guild).all()
         user_pontaje = guild_settings["pontaje"].get(ctx.author.id, [])
-        user_pontaje.append(datetime.now(self.bucharest_tz).strftime('%Y-%m-%d %H:%M:%S'))
+        user_pontaje.append(datetime.now(self.bucharest_tz))
         await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje)
 
         await ctx.message.delete()
@@ -49,7 +49,7 @@ class PontajInOut(commands.Cog):
 
         if pontaj_in_channel:
             await self.post_message(pontaj_in_channel,
-                                    f"{ctx.author.mention} a înregistrat pontajul de intrare: {user_pontaje[-1]}")
+                                    f"{ctx.author.mention} a înregistrat pontajul de intrare: {user_pontaje[-1].strftime('%H:%M')}")
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de intrare nu este configurat sau nu există.")
 
@@ -63,29 +63,31 @@ class PontajInOut(commands.Cog):
             await ctx.send("Folosește mai întâi **!pontaj in**.")
             return
         
-        user_pontaje[-1] = (user_pontaje[-1], datetime.now(self.bucharest_tz).strftime('%Y-%m-%d %H:%M:%S'))
-        await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje)
+        work_duration = datetime.now(self.bucharest_tz) - user_pontaje[-1]
+        work_minutes = int(work_duration.total_seconds() / 60)
         
         await ctx.message.delete()
         await self.delete_command(ctx)
         
-        pontaj_out_time = datetime.strptime(user_pontaje[-1][1], '%Y-%m-%d %H:%M:%S')
-        work_duration = pontaj_out_time - datetime.strptime(user_pontaje[-1][0], '%Y-%m-%d %H:%M:%S')
-        work_minutes = int(work_duration.total_seconds() / 60)
-        
-        guild_settings["pontaje"][ctx.author.id] = user_pontaje
-        await self.config.guild(ctx.guild).set(guild_settings)
+        pontaj_out_time = datetime.now(self.bucharest_tz)
 
-        guild_settings = await self.config.guild(ctx.guild).all()
-        pontaj_out_channel_id = guild_settings["pontaj_out_channel"]
-        pontaj_out_channel = ctx.guild.get_channel(pontaj_out_channel_id)
+        if len(user_pontaje) > 1:
+            user_pontaje[-1] = pontaj_out_time
+            guild_settings["pontaje"][ctx.author.id] = user_pontaje
+            await self.config.guild(ctx.guild).set(guild_settings)
 
-        if pontaj_out_channel:
-            await self.post_message(pontaj_out_channel,
-                                    f"{ctx.author.mention} a înregistrat pontajul de ieșire: {user_pontaje[-1][1]} "
-                                    f"(A stat în tură {work_minutes} de minute)")
+            guild_settings = await self.config.guild(ctx.guild).all()
+            pontaj_out_channel_id = guild_settings["pontaj_out_channel"]
+            pontaj_out_channel = ctx.guild.get_channel(pontaj_out_channel_id)
+
+            if pontaj_out_channel:
+                await self.post_message(pontaj_out_channel,
+                                        f"{ctx.author.mention} a înregistrat pontajul de ieșire: {pontaj_out_time.strftime('%H:%M')} "
+                                        f"(A stat în tură {work_minutes} de minute)")
+            else:
+                await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
         else:
-            await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
+            await ctx.send("Folosește mai întâi **!pontaj in**.")
 
     # Restul codului pentru comenzi și funcții auxiliare
 
