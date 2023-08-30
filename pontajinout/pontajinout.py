@@ -36,7 +36,7 @@ class PontajInOut(commands.Cog):
         """Înregistrează pontajul de intrare"""
         guild_settings = await self.config.guild(ctx.guild).all()
         user_pontaje = guild_settings["pontaje"].get(ctx.author.id, {})
-        user_pontaje["in"] = self.bucharest_tz.localize(datetime.now())
+        user_pontaje["in"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         await self.config.guild(ctx.guild).set_raw("pontaje", ctx.author.id, value=user_pontaje)
 
         try:
@@ -50,7 +50,7 @@ class PontajInOut(commands.Cog):
 
         if pontaj_in_channel:
             await self.post_message(pontaj_in_channel,
-                                    f"{ctx.author.mention} a înregistrat pontajul de intrare la ora {user_pontaje['in'].strftime('%H:%M')}")
+                                    f"{ctx.author.mention} a înregistrat pontajul de intrare la ora {datetime.now().strftime('%H:%M')}")
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de intrare nu este configurat sau nu există.")
 
@@ -67,11 +67,11 @@ class PontajInOut(commands.Cog):
         user_pontaje = guild_settings["pontaje"].get(ctx.author.id, {})
 
         if "in" in user_pontaje:
-            pontaj_out_time = self.bucharest_tz.localize(datetime.now())
-            work_duration = pontaj_out_time - user_pontaje["in"]
+            pontaj_out_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            work_duration = datetime.strptime(pontaj_out_time, '%Y-%m-%d %H:%M:%S') - datetime.strptime(user_pontaje["in"], '%Y-%m-%d %H:%M:%S')
             work_minutes = int(work_duration.total_seconds() / 60)
 
-            await ctx.send(f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time.strftime('%H:%M')} "
+            await ctx.send(f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time} "
                            f"(A stat în tură {work_minutes} minute)")
 
             user_pontaje.pop("in", None)
@@ -89,7 +89,7 @@ class PontajInOut(commands.Cog):
 
             if pontaj_out_channel:
                 await self.post_message(pontaj_out_channel,
-                                        f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time.strftime('%H:%M')} "
+                                        f"{ctx.author.mention} a ieșit din tură la ora {pontaj_out_time} "
                                         f"(A stat în tură {work_minutes} minute)")
             else:
                 await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
