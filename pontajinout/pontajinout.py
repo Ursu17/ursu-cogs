@@ -29,6 +29,10 @@ class PontajInOut(commands.Cog):
         data = await self.config.guild(member.guild).all()
         # Restul codului on_member_remove
 
+    async def post_message(self, channel, content):
+        if channel is not None:
+            await channel.send(content)
+
     @commands.group()
     async def pontaj(self, ctx):
         """Comenzi pentru înregistrarea pontajului de intrare/ieșire"""
