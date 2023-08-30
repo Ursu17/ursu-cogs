@@ -45,7 +45,7 @@ class PontajInOut(commands.Cog):
 
         if pontaj_in_channel:
             await self.post_message(pontaj_in_channel,
-                                    f"{ctx.author.mention} a înregistrat pontajul de intrare: {self.pontaj_in_time.strftime('%H:%M')}")
+                                    f"{ctx.author.mention} a intra în tură la ora **{self.pontaj_in_time.strftime('%H:%M')}**")
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de intrare nu este configurat sau nu există.")
 
@@ -70,8 +70,8 @@ class PontajInOut(commands.Cog):
 
         if pontaj_out_channel:
             await self.post_message(pontaj_out_channel,
-                                    f"{ctx.author.mention} a înregistrat pontajul de ieșire: {pontaj_out_time.strftime('%H:%M')} "
-                                    f"({work_minutes} minute)")
+                                    f"{ctx.author.mention} a ieșit din tură la ora **{pontaj_out_time.strftime('%H:%M')}** "
+                                    f"(A stat în tură **{work_minutes}** minute)")
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
 
