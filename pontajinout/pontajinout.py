@@ -27,7 +27,10 @@ class PontajInOut(commands.Cog):
         if channel is not None:
             await channel.send(content)
 
-    # Restul codului pentru comenzi
+    @commands.group()
+    async def pontaj(self, ctx):
+        """Comenzi pentru înregistrarea pontajului de intrare/ieșire"""
+        pass
 
     @pontaj.command(name="in")
     async def pontaj_in(self, ctx):
@@ -72,7 +75,7 @@ class PontajInOut(commands.Cog):
         else:
             await ctx.send("Canalul pentru înregistrarea pontajului de ieșire nu este configurat sau nu există.")
 
-    # Restul codului pentru comenzi
+    # Restul codului pentru comenzi și funcții auxiliare
 
     async def delete_command(self, ctx):
         await ctx.message.delete(delay=3)  # Șterge mesajul după 3 secunde
