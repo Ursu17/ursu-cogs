@@ -1,0 +1,17 @@
+{
+    "author": [
+        "Ursu"
+    ],
+    "description": "Adauga roluri persoanelor cate intra pe server.",
+    "hidden": false,
+    "install_msg": "Foloseste comanda `!uautorole`.",
+    "short": "Roluri automate cand intrii pe sv.",
+    "tags": [
+        "Autoroles",
+        "roles",
+        "Automation",
+        "joinroles"
+    ],
+    "end_user_data_statement": "Acest plugin nu stocheaza datele utilizatorilor.",
+    "min_bot_version": "3.5.0"
+}
