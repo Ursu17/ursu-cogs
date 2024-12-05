@@ -1,0 +1,15 @@
+{
+    "author": [
+        "Ursu"
+    ],
+    "install_msg": "Instalat cu succes",
+    "name": "Meme",
+    "disabled": false,
+    "short": "Posteaza memes safe for work.",
+    "description": "Posteaza memes safe for work.",
+    "tags": [
+        "meme",
+        "reddit"
+    ],
+    "min_bot_version": "3.5.4",
+    "hidden": false
