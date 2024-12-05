@@ -1,0 +1,12 @@
+{
+    "author" : ["Ursu"],
+    "install_msg" : "Instalat cu succes. Foloseste `!uhelp gameroles`.",
+    "name" : "GameRoles",
+    "short" : "Asigneaza roluri cand un player joaca un anume joc.",
+    "requirements" : [],
+    "description" : "Asigneaza roluri cand un player joaca un anume joc, ai si optiunea sa scoata rolul cand nu mai joaca. Asta ajuta la camere private pe discord pe baza de roluri. Daca persoana isi ascunde activitatea nu asigneaza roluri. Foloseste !ugameroles pentru configurare!",
+    "tags" : ["utility", "role"],
+    "min_bot_version": "3.5.0.dev1",
+    "min_python_version": [3, 6, 0],
+    "end_user_data_statement": "Acest plugin nu stocheaza date."
+}
