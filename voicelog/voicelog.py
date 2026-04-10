@@ -10,7 +10,7 @@ class VoiceLog(commands.Cog):
         self.bot = bot
         self.allowedguilds = set()
         self.config = Config.get_conf(self, identifier=7669636567)
-        self.config.register_guild(enabled=False)
+        self.config.register_guild(enabled=False, channel_id=None)
 
     async def cog_load(self):
         all_config = await self.config.all_guilds()
@@ -37,6 +37,21 @@ class VoiceLog(commands.Cog):
             embed.set_author(name="S-a mutat", icon_url=member.display_avatar.url)
             embed.description = f"{member.mention} s-a mutat de la {before.channel.mention} la {after.channel.mention}"
         
+        # If a log channel is configured, try sending there first
+        try:
+            log_channel_id = await self.config.guild(guild).channel_id()
+        except Exception:
+            log_channel_id = None
+
+        if log_channel_id:
+            log_channel = guild.get_channel(log_channel_id) or self.bot.get_channel(log_channel_id)
+            if log_channel:
+                perms = log_channel.permissions_for(guild.me)
+                if perms.send_messages and perms.embed_links:
+                    await log_channel.send(embed=embed)
+                    return
+
+        # Fallback: send to the voice channels involved (if permitted)
         for channel in [before.channel, after.channel]:
             if not channel:
                 continue
@@ -67,3 +82,31 @@ class VoiceLog(commands.Cog):
         self.allowedguilds.remove(ctx.guild.id)
         await self.config.guild(ctx.guild).enabled.set(False)
         await ctx.tick(message="Voice Log oprit")
+
+    @voicelog.command(name="setchannel")
+    @commands.has_permissions(manage_guild=True)
+    @commands.guild_only()
+    async def voicelog_setchannel(self, ctx: commands.Context, channel: discord.TextChannel = None):
+        """Seteaza canalul unde se trimit logurile. Fara argument sterge setarea."""
+        assert ctx.guild
+        if channel is None:
+            await self.config.guild(ctx.guild).channel_id.set(None)
+            await ctx.tick(message="Canalul de log a fost dezactivat")
+            return
+        await self.config.guild(ctx.guild).channel_id.set(channel.id)
+        await ctx.tick(message=f"Canalul de log setat la {channel.mention}")
+
+    @voicelog.command(name="showchannel")
+    @commands.guild_only()
+    async def voicelog_showchannel(self, ctx: commands.Context):
+        """Arata canalul configurat pentru loguri, daca exista."""
+        assert ctx.guild
+        channel_id = await self.config.guild(ctx.guild).channel_id()
+        if not channel_id:
+            await ctx.send("Nu este setat niciun canal de log.")
+            return
+        ch = ctx.guild.get_channel(channel_id) or self.bot.get_channel(channel_id)
+        if not ch:
+            await ctx.send("Canalul configurat nu este gasit pe server.")
+            return
+        await ctx.send(f"Canalul de log este: {ch.mention}")
