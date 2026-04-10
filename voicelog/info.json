@@ -1,0 +1,12 @@
+{
+    "author": ["ursu"],
+    "min_bot_version": "3.5.0",
+    "description": "Loguri pentru voice in-out",
+    "hidden": false,
+    "install_msg": "🎤 __**VoiceLog**__ ```Cog instalat. Instructiuni:\n1. Load it with !uload voicelog\n2.Foloseste !uvoicelog enable```",
+    "required_cogs": {},
+    "requirements": [],
+    "short": "Loguri pentru voice in-out",
+    "end_user_data_statement": "Nu stocheaza informatii",
+    "tags": ["ursu", "voice", "log", "moderation"]
+}
