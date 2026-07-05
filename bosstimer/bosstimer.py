@@ -79,11 +79,11 @@ class BossTimer(Cog):
                 if role:
                     role_mention = f"{role.mention} "
             if minutes_before == 10:
-                msg = f"{role_mention}⚔️ **Boss Warning** — Boss spawns in **10 minutes** at **{spawn_time_str}**!"
+                msg = f"{role_mention}⚔️ **World boss** spawns in **10 minutes**!"
             elif minutes_before == 5:
-                msg = f"{role_mention}⚠️ **Boss Warning** — Boss spawns in **5 minutes** at **{spawn_time_str}**!"
+                msg = f"{role_mention}⚠️ **World Boss** spawns in **5 minutes**!"
             else:
-                msg = f"{role_mention}🔥 **Boss has spawned!** Get to the boss location NOW! (`{spawn_time_str}`)"
+                msg = f"{role_mention}🔥 **World boss** has spawned! Get to the boss map **NOW**!"
             try:
                 await channel.send(msg)
             except Exception:
