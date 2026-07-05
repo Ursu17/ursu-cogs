@@ -79,9 +79,9 @@ class BossTimer(Cog):
                 if role:
                     role_mention = f"{role.mention} "
             if minutes_before == 30:
-                msg = f"{role_mention}⚔️ **World boss** spawns in **30 minutes**!"
+                msg = f"[{role_mention}] **World boss** spawns in **30 minutes**!"
             else:
-                msg = f"{role_mention}⚠️ **World Boss** spawns in **5 minutes**!"
+                msg = f"[{role_mention}] **World Boss** spawns in **5 minutes**!"
             try:
                 await channel.send(msg, allowed_mentions=discord.AllowedMentions(roles=True))
             except Exception:
