@@ -1,0 +1,12 @@
+{
+    "author": ["ursu"],
+    "min_bot_version": "3.5.0",
+    "description": "Sends boss spawn warnings at 01:00, 07:00, 13:00 and 19:00 Romania time with 10-min and 5-min notices.",
+    "hidden": false,
+    "install_msg": "⚔️ __**BossTimer**__ ```Cog installed. Instructions:\n1. Load it with [p]load bosstimer\n2. Set the channel with [p]bosstimer setchannel #channel\n3. Optionally set a role with [p]bosstimer setrole @role```",
+    "required_cogs": {},
+    "requirements": ["pytz"],
+    "short": "Boss spawn timer cu avertizari la 10 si 5 minute.",
+    "end_user_data_statement": "This cog does not store user data.",
+    "tags": ["ursu", "boss", "timer", "spawn"]
+}
