@@ -44,9 +44,8 @@ class AudioSlash(Cog):
             return cog
         await inter.response.send_message("Audio cog not loaded! Contact the bot owner for more information.", ephemeral=True)
 
-    async def get_context(self, inter: discord.Interaction, cog: Audio) -> commands.Context:
+    async def get_context(self, inter: discord.Interaction) -> commands.Context:
         ctx: commands.Context = await self.bot.get_context(inter)  # noqa
-        ctx.cog = cog
         return ctx
 
     async def can_run_command(self, ctx: commands.Context, command_name: str) -> bool:
@@ -76,7 +75,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         if when in ("next", "now"):
             if not await self.can_run_command(ctx, "bumpplay"):
                 return
@@ -93,7 +92,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         if not await self.can_run_command(ctx, "pause"):
             return
         await audio.command_pause(ctx)
@@ -105,7 +104,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         if not await self.can_run_command(ctx, "stop"):
             return
         await audio.command_stop(ctx)
@@ -118,7 +117,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         if not await self.can_run_command(ctx, "skip"):
             return
         await audio.command_skip(ctx, position)
@@ -130,7 +129,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         if not await self.can_run_command(ctx, "queue"):
             return
         await audio.command_queue(ctx)
@@ -146,7 +145,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         if not await self.can_run_command(ctx, "volume"):
             return
         await audio.command_volume(ctx, volume)
@@ -160,7 +159,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         value = bool(int(toggle))
         if value != await audio.config.guild(ctx.guild).shuffle():
             if not await self.can_run_command(ctx, "shuffle"):
@@ -179,7 +178,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         value = bool(int(toggle))
         if value != await audio.config.guild(ctx.guild).repeat():
             if not await self.can_run_command(ctx, "repeat"):
@@ -207,7 +206,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         match = await PlaylistConverter().convert(ctx, playlist)
         enabled = False
         if shuffle is not None and shuffle != await audio.config.guild(ctx.guild).shuffle():
@@ -233,7 +232,7 @@ class AudioSlash(Cog):
             return
         await inter.response.defer()
         name = name.replace(" ", "-")
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         if make_from_queue:
             if not await self.can_run_command(ctx, "playlist queue"):
                 return
@@ -253,7 +252,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist append"):
             return
@@ -269,7 +268,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist remove"):
             return
@@ -284,7 +283,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist info"):
             return
@@ -299,7 +298,7 @@ class AudioSlash(Cog):
         if not (audio := await self.get_audio_cog(inter)):
             return
         await inter.response.defer()
-        ctx = await self.get_context(inter, audio)
+        ctx = await self.get_context(inter)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist delete"):
             return
