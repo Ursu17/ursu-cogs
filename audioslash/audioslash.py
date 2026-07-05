@@ -1,5 +1,6 @@
 from youtubesearchpython.__future__ import VideosSearch
 import logging
+import traceback
 import discord
 from copy import copy
 from redbot.core import commands, app_commands
@@ -23,6 +24,19 @@ class AudioSlash(Cog):
 
     async def red_delete_data_for_user(self, **kwargs):
         pass
+
+    async def cog_app_command_error(self, inter: discord.Interaction, error: app_commands.AppCommandError):
+        original = getattr(error, "original", error)
+        tb = "".join(traceback.format_exception(type(original), original, original.__traceback__))
+        log.error(f"Error in command '{inter.command.name if inter.command else '?'}':\n{tb}")
+        msg = f"❌ **Eroare în `/{inter.command.name if inter.command else '?'}`**\n```py\n{type(original).__name__}: {original}\n```"
+        try:
+            if inter.response.is_done():
+                await inter.followup.send(msg, ephemeral=True)
+            else:
+                await inter.response.send_message(msg, ephemeral=True)
+        except Exception:
+            pass
 
     async def get_audio_cog(self, inter: discord.Interaction) -> Optional[Audio]:
         cog: Optional[Audio] = self.bot.get_cog("Audio")
