@@ -37,8 +37,8 @@ class JoinLeave(commands.Cog):
             description=f"{member.mention} ({member.name}#{member.discriminator})",
             timestamp=member.joined_at,
             color=discord.Color.green())
-        embed.set_thumbnail(url=member.avatar.url)
-        embed.set_author(name=f"{member.name} a intrat pe serverul de discord", icon_url=member.avatar.url)
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.set_author(name=f"{member.name} a intrat pe serverul de discord", icon_url=member.display_avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
         embed.add_field(name="Cont creeat la:", value=created_on)
         embed.set_footer(text=f"User ID: {member.id}")
@@ -63,8 +63,8 @@ class JoinLeave(commands.Cog):
             description=f"{member.mention} ({member.name}#{member.discriminator})",
             timestamp=datetime.utcnow(),
             color=discord.Color.red())
-        embed.set_thumbnail(url=member.avatar.url)
-        embed.set_author(name=f"{member.name} a părăsit serverul de discord", icon_url=member.avatar.url)
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.set_author(name=f"{member.name} a părăsit serverul de discord", icon_url=member.display_avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
         embed.add_field(name="Cont creeat la:", value=created_on)
         embed.set_footer(text=f"User ID: {member.id}")
