@@ -313,6 +313,11 @@ class AudioSlash(Cog):
         else:
             return name + author
 
+    @commands.command(name="uplay")
+    async def uplay(self, ctx: commands.Context):
+        """Redirects to /play."""
+        await ctx.send("Comanda `!uplay` nu mai este utilizata. Incearca `/play` apoi link")
+
     @play.autocomplete("search")
     @playlist_add.autocomplete("track")
     async def youtube_autocomplete(self, _: discord.Interaction, current: str):
