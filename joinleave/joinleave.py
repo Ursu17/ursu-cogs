@@ -1,5 +1,5 @@
 import discord
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from redbot.core import commands, Config
 from redbot.core.i18n import Translator, cog_i18n
 
@@ -31,11 +31,10 @@ class JoinLeave(commands.Cog):
         created_at = member.created_at.astimezone(timezone.utc)
         days_since_creation = (timestamp - created_at).days
         user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
-        since_created = days_since_creation
-        created_on = f"{user_created} (acum {since_created} zile)"
+        created_on = f"{user_created} (acum {days_since_creation} zile)"
         embed = discord.Embed(
             description=f"{member.mention} ({member.name})",
-            timestamp=member.joined_at,
+            timestamp=member.joined_at or timestamp,
             color=discord.Color.green())
         embed.set_thumbnail(url=member.display_avatar.url)
         embed.set_author(name=f"{member.name} a intrat pe serverul de discord", icon_url=member.display_avatar.url)
@@ -59,10 +58,18 @@ class JoinLeave(commands.Cog):
         created_at = member.created_at.astimezone(timezone.utc)
         days_since_creation = (timestamp - created_at).days
         user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
-        since_created = days_since_creation
-        created_on = f"{user_created} (acum {since_created} zile)"
+        created_on = f"{user_created} (acum {days_since_creation} zile)"
         roles = [r.mention for r in member.roles if r != member.guild.default_role]
-        roles_value = ", ".join(roles) if roles else "Niciun rol"
+        if roles:
+            roles_value = ""
+            for mention in roles:
+                if len(roles_value) + len(mention) + 2 > 1024:
+                    roles_value += "..."
+                    break
+                roles_value += mention + ", "
+            roles_value = roles_value.rstrip(", ")
+        else:
+            roles_value = "Niciun rol"
         embed = discord.Embed(
             description=f"{member.mention} ({member.name})",
             timestamp=datetime.now(timezone.utc),
@@ -81,6 +88,7 @@ class JoinLeave(commands.Cog):
         pass
 
     @joinleave.command(name="setchannel")
+    @commands.has_permissions(administrator=True)
     async def set_channel(self, ctx, event: str, channel: discord.TextChannel):
         """Configurează canalul pentru evenimentul specificat (intrare/ieșire)"""
         if event.lower() not in ["in", "out"]:
@@ -100,6 +108,7 @@ class JoinLeave(commands.Cog):
         await self.config.guild(ctx.guild).set(data)
 
     @joinleave.command(name="resetchannel")
+    @commands.has_permissions(administrator=True)
     async def reset_channel(self, ctx, event: str):
         """Resetează canalul pentru evenimentul specificat (intrare/ieșire)"""
         if event.lower() not in ["in", "out"]:
