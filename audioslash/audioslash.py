@@ -32,7 +32,7 @@ class AudioSlash(Cog):
 
     async def get_context(self, inter: discord.Interaction, cog: Audio) -> commands.Context:
         ctx: commands.Context = await self.bot.get_context(inter)  # noqa
-        ctx.command.cog = cog
+        ctx.cog = cog
         return ctx
 
     async def can_run_command(self, ctx: commands.Context, command_name: str) -> bool:
@@ -61,6 +61,7 @@ class AudioSlash(Cog):
         """Search a YouTube video to play in voicechat."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         if when in ("next", "now"):
             if not await self.can_run_command(ctx, "bumpplay"):
@@ -77,6 +78,7 @@ class AudioSlash(Cog):
         """Pauses or resumes the music in voicechat."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         if not await self.can_run_command(ctx, "pause"):
             return
@@ -88,6 +90,7 @@ class AudioSlash(Cog):
         """Stops playing any music entirely."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         if not await self.can_run_command(ctx, "stop"):
             return
@@ -100,6 +103,7 @@ class AudioSlash(Cog):
         """Skips a number of tracks in the music queue."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         if not await self.can_run_command(ctx, "skip"):
             return
@@ -111,6 +115,7 @@ class AudioSlash(Cog):
         """Show what's currently playing."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         if not await self.can_run_command(ctx, "queue"):
             return
@@ -126,6 +131,7 @@ class AudioSlash(Cog):
         """Sets the music volume in voicechat."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         if not await self.can_run_command(ctx, "volume"):
             return
@@ -139,6 +145,7 @@ class AudioSlash(Cog):
         """Sets whether the playlist should be shuffled."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         value = bool(int(toggle))
         if value != await audio.config.guild(ctx.guild).shuffle():
@@ -157,6 +164,7 @@ class AudioSlash(Cog):
         """Sets whether the playlist should repeat."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         value = bool(int(toggle))
         if value != await audio.config.guild(ctx.guild).repeat():
@@ -184,6 +192,7 @@ class AudioSlash(Cog):
         """Starts an existing playlist in voicechat."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         match = await PlaylistConverter().convert(ctx, playlist)
         enabled = False
@@ -208,6 +217,7 @@ class AudioSlash(Cog):
         """Creates a new playlist."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         name = name.replace(" ", "-")
         ctx = await self.get_context(inter, audio)
         if make_from_queue:
@@ -228,6 +238,7 @@ class AudioSlash(Cog):
         """Adds a track to an existing playlist."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist append"):
@@ -243,6 +254,7 @@ class AudioSlash(Cog):
         """Removes a track from an existing playlist."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist remove"):
@@ -257,6 +269,7 @@ class AudioSlash(Cog):
         """Show information about a playlist."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist info"):
@@ -271,6 +284,7 @@ class AudioSlash(Cog):
         """Deletes a playlist entirely."""
         if not (audio := await self.get_audio_cog(inter)):
             return
+        await inter.response.defer()
         ctx = await self.get_context(inter, audio)
         match = await PlaylistConverter().convert(ctx, playlist)
         if not await self.can_run_command(ctx, "playlist delete"):
@@ -297,6 +311,7 @@ class AudioSlash(Cog):
             return [app_commands.Choice(name=self.format_youtube(res), value=res["link"]) for res in results["result"]]
         except:
             log.exception("Retrieving youtube results")
+            return []
 
     @playlist_play.autocomplete("playlist")
     @playlist_add.autocomplete("playlist")
@@ -326,3 +341,4 @@ class AudioSlash(Cog):
             return [app_commands.Choice(name=pl, value=pl) for pl in results][:25]
         except:
             log.exception("Retrieving playlists")
+            return []
