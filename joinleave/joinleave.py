@@ -34,13 +34,15 @@ class JoinLeave(commands.Cog):
         since_created = days_since_creation
         created_on = f"{user_created} (acum {since_created} zile)"
         embed = discord.Embed(
-            description=f"{member.mention} ({member.name}#{member.discriminator})",
+            description=f"{member.mention} ({member.name})",
             timestamp=member.joined_at,
             color=discord.Color.green())
         embed.set_thumbnail(url=member.display_avatar.url)
         embed.set_author(name=f"{member.name} a intrat pe serverul de discord", icon_url=member.display_avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
-        embed.add_field(name="Cont creeat la:", value=created_on)
+        embed.add_field(name="Cont creat la:", value=created_on)
+        if days_since_creation < 7:
+            embed.add_field(name="⚠️ Cont nou!", value=f"Contul are doar {days_since_creation} zile.", inline=False)
         embed.set_footer(text=f"User ID: {member.id}")
         await channel.send(embed=embed)
 
@@ -59,14 +61,17 @@ class JoinLeave(commands.Cog):
         user_created = member.created_at.strftime("%Y-%m-%d, %H:%M")
         since_created = days_since_creation
         created_on = f"{user_created} (acum {since_created} zile)"
+        roles = [r.mention for r in member.roles if r != member.guild.default_role]
+        roles_value = ", ".join(roles) if roles else "Niciun rol"
         embed = discord.Embed(
-            description=f"{member.mention} ({member.name}#{member.discriminator})",
-            timestamp=datetime.utcnow(),
+            description=f"{member.mention} ({member.name})",
+            timestamp=datetime.now(timezone.utc),
             color=discord.Color.red())
         embed.set_thumbnail(url=member.display_avatar.url)
         embed.set_author(name=f"{member.name} a părăsit serverul de discord", icon_url=member.display_avatar.url)
         embed.add_field(name="Membri:", value=str(member.guild.member_count), inline=True)
-        embed.add_field(name="Cont creeat la:", value=created_on)
+        embed.add_field(name="Cont creat la:", value=created_on)
+        embed.add_field(name="Roluri:", value=roles_value, inline=False)
         embed.set_footer(text=f"User ID: {member.id}")
         await channel.send(embed=embed)
 
