@@ -11,7 +11,7 @@ log = logging.getLogger("red.ursu-cogs.bosstimer")
 
 ROMANIA_TZ = pytz.timezone("Europe/Bucharest")
 SPAWN_HOURS = [1, 7, 13, 19]
-OFFSETS = [10, 5, 0]
+OFFSETS = [30, 5]
 
 
 def _get_events_for_date(date):
@@ -78,12 +78,10 @@ class BossTimer(Cog):
                 role = guild.get_role(data["role_id"])
                 if role:
                     role_mention = f"{role.mention} "
-            if minutes_before == 10:
-                msg = f"{role_mention}⚔️ **World boss** spawns in **10 minutes**!"
-            elif minutes_before == 5:
-                msg = f"{role_mention}⚠️ **World Boss** spawns in **5 minutes**!"
+            if minutes_before == 30:
+                msg = f"{role_mention}⚔️ **World boss** spawns in **30 minutes**!"
             else:
-                msg = f"{role_mention}🔥 **World boss** has spawned! Get to the boss map **NOW**!"
+                msg = f"{role_mention}⚠️ **World Boss** spawns in **5 minutes**!"
             try:
                 await channel.send(msg)
             except Exception:
@@ -129,7 +127,7 @@ class BossTimer(Cog):
         result = _get_next_event(now)
         if result:
             event_time, spawn_hour, minutes_before = result
-            label = f"Boss spawn" if minutes_before == 0 else f"{minutes_before}-min warning"
+            label = f"{minutes_before}-min warning"
             next_str = f"{label} at **{event_time.strftime('%H:%M')}** (Romania)"
         else:
             next_str = "Unknown"
